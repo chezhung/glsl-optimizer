@@ -1403,6 +1403,7 @@ struct gl_extensions
    GLboolean ANGLE_texture_compression_dxt;
    GLboolean ARB_ES2_compatibility;
    GLboolean ARB_ES3_compatibility;
+   GLboolean ARB_ES3_1_compatibility;
    GLboolean ARB_arrays_of_arrays;
    GLboolean ARB_base_instance;
    GLboolean ARB_blend_func_extended;
@@ -1498,14 +1499,18 @@ struct gl_extensions
    GLboolean EXT_framebuffer_sRGB;
    GLboolean EXT_gpu_program_parameters;
    GLboolean EXT_gpu_shader4;
+   GLboolean EXT_gpu_shader5;
    GLboolean EXT_packed_float;
    GLboolean EXT_pixel_buffer_object;
    GLboolean EXT_point_parameters;
    GLboolean EXT_provoking_vertex;
    GLboolean EXT_shader_integer_mix;
+   GLboolean EXT_shader_io_blocks;
    GLboolean EXT_stencil_two_side;
    GLboolean EXT_texture3D;
    GLboolean EXT_texture_array;
+   GLboolean EXT_texture_buffer;
+   GLboolean EXT_texture_cube_map_array;
    GLboolean EXT_texture_compression_latc;
    GLboolean EXT_texture_compression_s3tc;
    GLboolean EXT_texture_env_dot3;
@@ -1522,6 +1527,7 @@ struct gl_extensions
    GLboolean EXT_vertex_array_bgra;
    GLboolean OES_standard_derivatives;
    GLboolean EXT_shadow_samplers;
+   GLboolean EXT_blend_func_extended;
    GLboolean EXT_frag_depth;
    GLboolean EXT_shader_framebuffer_fetch;
    /* vendor extensions */

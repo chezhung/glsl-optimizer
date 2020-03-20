@@ -59,7 +59,12 @@ initialize_mesa_context(struct gl_context *ctx, glslopt_target api)
 	case kGlslTargetOpenGLES30:
 		ctx->Extensions.ARB_ES3_compatibility = true;
 		ctx->Extensions.EXT_shader_framebuffer_fetch = true;
-		break;
+        break;
+    case kGlslTargetOpenGLES31:
+        ctx->Extensions.ARB_ES3_compatibility = true;
+        ctx->Extensions.ARB_ES3_1_compatibility = true;
+        ctx->Extensions.EXT_shader_framebuffer_fetch = true;
+        break;
 	case kGlslTargetMetal:
 		ctx->Extensions.ARB_ES3_compatibility = true;
 		ctx->Extensions.EXT_shader_framebuffer_fetch = true;
@@ -69,6 +74,7 @@ initialize_mesa_context(struct gl_context *ctx, glslopt_target api)
 
    // allow high amount of texcoords
    ctx->Const.MaxTextureCoordUnits = 16;
+   ctx->Const.MaxCombinedTextureImageUnits = 32;
 
    ctx->Const.Program[MESA_SHADER_VERTEX].MaxTextureImageUnits = 16;
    ctx->Const.Program[MESA_SHADER_FRAGMENT].MaxTextureImageUnits = 16;

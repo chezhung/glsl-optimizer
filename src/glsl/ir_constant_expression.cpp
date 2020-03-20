@@ -723,7 +723,7 @@ ir_expression::constant_expression_value(struct hash_table *variable_context)
 	    data.i[c] = 0;
 	    break;
 	 case GLSL_TYPE_FLOAT:
-	    data.f[c] = op[0]->value.f[c] - floor(op[0]->value.f[c]);
+	    data.f[c] = op[0]->value.f[c] - (float)floor(op[0]->value.f[c]);
 	    break;
 	 default:
 	    assert(0);
@@ -777,7 +777,7 @@ ir_expression::constant_expression_value(struct hash_table *variable_context)
 	       data.i[c] = -data.i[c];
 	    break;
 	 case GLSL_TYPE_FLOAT:
-	    data.f[c] = fabs(op[0]->value.f[c]);
+	    data.f[c] = (float)fabs(op[0]->value.f[c]);
 	    break;
 	 default:
 	    assert(0);
@@ -1540,10 +1540,10 @@ ir_expression::constant_expression_value(struct hash_table *variable_context)
 
    case ir_binop_ldexp:
       for (unsigned c = 0; c < components; c++) {
-         data.f[c] = ldexp(op[0]->value.f[c], op[1]->value.i[c]);
+         data.f[c] = (float)ldexp(op[0]->value.f[c], op[1]->value.i[c]);
          /* Flush subnormal values to zero. */
          if (!isnormal(data.f[c]))
-            data.f[c] = copysign(0.0f, op[0]->value.f[c]);
+            data.f[c] = (float)copysign(0.0f, op[0]->value.f[c]);
       }
       break;
 

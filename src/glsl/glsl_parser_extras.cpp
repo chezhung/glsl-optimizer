@@ -171,6 +171,11 @@ _mesa_glsl_parse_state::_mesa_glsl_parse_state(struct gl_context *_ctx,
       this->supported_versions[this->num_supported_versions].es = true;
       this->num_supported_versions++;
    }
+   if (_mesa_is_gles3(ctx) || ctx->Extensions.ARB_ES3_1_compatibility) {
+       this->supported_versions[this->num_supported_versions].ver = 310;
+       this->supported_versions[this->num_supported_versions].es = true;
+       this->num_supported_versions++;
+   }
    assert(this->num_supported_versions
           <= ARRAY_SIZE(this->supported_versions));
 
@@ -553,6 +558,8 @@ static const _mesa_glsl_extension _mesa_glsl_supported_extensions[] = {
    EXT(OES_EGL_image_external,         false, true,      OES_EGL_image_external),
    EXT(OES_standard_derivatives,       false, true,      OES_standard_derivatives),
    EXT(OES_texture_3D,                 false, true,      EXT_texture3D),
+   EXT(OES_texture_buffer,             false, true,      EXT_texture_buffer),
+   EXT(OES_texture_cube_map_array,     false, true,      EXT_texture_cube_map_array),
 
    /* All other extensions go here, sorted alphabetically.
     */
@@ -563,11 +570,14 @@ static const _mesa_glsl_extension _mesa_glsl_supported_extensions[] = {
    EXT(AMD_vertex_shader_viewport_index, true,  false,   AMD_vertex_shader_viewport_index),
    EXT(EXT_draw_buffers,               false,  true,     EXT_draw_buffers),
    EXT(EXT_draw_instanced,             false,  true,     EXT_draw_instanced),
+   EXT(EXT_blend_func_extended,        false,  true,     EXT_blend_func_extended),
    EXT(EXT_frag_depth,                 false,  true,     EXT_frag_depth),
    EXT(EXT_gpu_shader4,				   true,  false,     EXT_gpu_shader4),
+   EXT(EXT_gpu_shader5,				   false,  true,     EXT_gpu_shader5),
    EXT(EXT_separate_shader_objects,    false, true,      dummy_true),
    EXT(EXT_shader_framebuffer_fetch,   false, true,      EXT_shader_framebuffer_fetch),
    EXT(EXT_shader_integer_mix,         true,  true,      EXT_shader_integer_mix),
+   EXT(EXT_shader_io_blocks,           false, true,      EXT_shader_io_blocks),
    EXT(EXT_shader_texture_lod,         false, true,      ARB_shader_texture_lod),
    EXT(EXT_shadow_samplers,            false, true,      EXT_shadow_samplers),
    EXT(EXT_texture_array,              true,  false,     EXT_texture_array),
@@ -821,6 +831,8 @@ _mesa_ast_type_qualifier_print(const struct ast_type_qualifier *q)
       printf("sample ");
    if (q->flags.q.uniform)
       printf("uniform ");
+   if (q->flags.q.buffer)
+       printf("buffer ");
    if (q->flags.q.smooth)
       printf("smooth ");
    if (q->flags.q.flat)

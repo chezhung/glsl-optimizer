@@ -433,6 +433,7 @@ struct ast_type_qualifier {
 	 unsigned centroid:1;
          unsigned sample:1;
 	 unsigned uniform:1;
+     unsigned buffer:1;
 	 unsigned smooth:1;
 	 unsigned flat:1;
 	 unsigned noperspective:1;
@@ -477,6 +478,7 @@ struct ast_type_qualifier {
 	 /** \name Layout qualifiers for GL_ARB_uniform_buffer_object */
 	 /** \{ */
          unsigned std140:1;
+         unsigned std430:1;
          unsigned shared:1;
          unsigned packed:1;
          unsigned column_major:1;

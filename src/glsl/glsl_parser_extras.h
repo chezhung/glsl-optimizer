@@ -203,6 +203,33 @@ struct _mesa_glsl_parse_state {
          || EXT_separate_shader_objects_enable;
    }
 
+   bool has_420pack() const
+   {
+      return ARB_shading_language_420pack_enable || is_version(420, 0);
+   }
+
+   bool has_420pack_or_es31() const
+   {
+      return ARB_shading_language_420pack_enable || is_version(420, 310);
+   }
+
+   bool has_compute_shader() const
+   {
+      return ARB_compute_shader_enable || is_version(430, 310);
+   }
+
+   bool has_shader_io_blocks() const
+   {
+      return EXT_shader_io_blocks_enable || is_version(150, 320);
+   }
+
+   bool has_texture_cube_map_array() const
+   {
+       return ARB_texture_cube_map_array_enable ||
+              OES_texture_cube_map_array_enable ||
+              is_version(400, 320);
+   }
+
    void process_version_directive(YYLTYPE *locp, int version,
                                   const char *ident);
 
@@ -237,6 +264,13 @@ struct _mesa_glsl_parse_state {
     * those blocks.
     */
    struct ast_type_qualifier *default_uniform_qualifier;
+
+   /**
+    * Default shader storage layout qualifiers tracked during parsing.
+    * Currently affects shader storage blocks and shader storage buffer
+    * variables in those blocks.
+    */
+   struct ast_type_qualifier *default_shader_storage_qualifier;
 
    /**
     * Variables to track different cases if a fragment shader redeclares
@@ -475,22 +509,32 @@ struct _mesa_glsl_parse_state {
    bool EXT_draw_buffers_warn;
    bool EXT_draw_instanced_enable;
    bool EXT_draw_instanced_warn;
+   bool EXT_blend_func_extended_enable;
+   bool EXT_blend_func_extended_warn;
    bool EXT_frag_depth_enable;
    bool EXT_frag_depth_warn;
    bool EXT_gpu_shader4_enable;
    bool EXT_gpu_shader4_warn;
+   bool EXT_gpu_shader5_enable;
+   bool EXT_gpu_shader5_warn;
    bool EXT_separate_shader_objects_enable;
    bool EXT_separate_shader_objects_warn;
    bool EXT_shader_framebuffer_fetch_enable;
    bool EXT_shader_framebuffer_fetch_warn;
    bool EXT_shader_integer_mix_enable;
    bool EXT_shader_integer_mix_warn;
+   bool EXT_shader_io_blocks_enable;
+   bool EXT_shader_io_blocks_warn;
    bool EXT_shader_texture_lod_enable;
    bool EXT_shader_texture_lod_warn;
    bool EXT_shadow_samplers_enable;
    bool EXT_shadow_samplers_warn;
    bool EXT_texture_array_enable;
    bool EXT_texture_array_warn;
+   bool OES_texture_buffer_enable;
+   bool OES_texture_buffer_warn;
+   bool OES_texture_cube_map_array_enable;
+   bool OES_texture_cube_map_array_warn;
 
    /*@}*/
 

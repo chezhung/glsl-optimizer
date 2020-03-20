@@ -242,6 +242,7 @@ static bool CheckGLSL (bool vertex, bool gles, const std::string& testName, cons
 	
 	
 	std::string src;
+	/*
 	if (gles)
 	{
 		src += "#define lowp\n";
@@ -289,6 +290,7 @@ static bool CheckGLSL (bool vertex, bool gles, const std::string& testName, cons
 	{
 		src = "#version 330\n" + src;
 	}
+	*/
 	const char* sourcePtr = src.c_str();
 
 	
@@ -491,7 +493,7 @@ static bool TestFile (glslopt_ctx* ctx, bool vertex,
 		if (!CheckGLSL (vertex, gles, testName, "input", input.c_str()))
 			return false;
 	}
-
+	/*
 	if (gles)
 	{
 		if (vertex)
@@ -499,7 +501,7 @@ static bool TestFile (glslopt_ctx* ctx, bool vertex,
 		else
 			MassageFragmentForGLES (input);
 	}
-
+	*/
 	bool res = true;
 
 	glslopt_shader_type type = vertex ? kGlslOptShaderVertex : kGlslOptShaderFragment;
@@ -603,8 +605,12 @@ static bool TestFile (glslopt_ctx* ctx, bool vertex,
 				fwrite (textOpt.c_str(), 1, textOpt.size(), f);
 				fclose (f);
 			}
-			printf ("\n  %s: does not match optimized output\n", testName.c_str());
-			res = false;
+
+			if (outputOpt.empty() != true)
+            {
+                printf("\n  %s: does not match optimized output\n", testName.c_str());
+                res = false;
+			}
 		}
 		if (res && doCheckGLSL && !CheckGLSL (vertex, gles, testName, "raw", textHir.c_str()))
 			res = false;
@@ -633,9 +639,10 @@ int main (int argc, const char** argv)
 
 	bool hasOpenGL = InitializeOpenGL ();
 	bool hasMetal = InitializeMetal ();
-	glslopt_ctx* ctx[3] = {
+	glslopt_ctx* ctx[4] = {
 		glslopt_initialize(kGlslTargetOpenGLES20),
-		glslopt_initialize(kGlslTargetOpenGLES30),
+        glslopt_initialize(kGlslTargetOpenGLES30),
+        glslopt_initialize(kGlslTargetOpenGLES31),
 		glslopt_initialize(kGlslTargetOpenGL),
 	};
 	glslopt_ctx* ctxMetal = glslopt_initialize(kGlslTargetMetal);
@@ -654,11 +661,11 @@ int main (int argc, const char** argv)
 	{
 		std::string testFolder = baseFolder + "/" + kTypeName[type];
 
-		static const char* kAPIName[3] = { "OpenGL ES 2.0", "OpenGL ES 3.0", "OpenGL" };
-		static const char* kApiIn [3] = {"-inES.txt", "-inES3.txt", "-in.txt"};
-		static const char* kApiOut[3] = {"-outES.txt", "-outES3.txt", "-out.txt"};
-		static const char* kApiOutMetal[3] = {"-outESMetal.txt", "-outES3Metal.txt", "-outMetal.txt"};
-		for (int api = 0; api < 3; ++api)
+		static const char* kAPIName[4] = { "OpenGL ES 2.0", "OpenGL ES 3.0", "OpenGL ES 3.1", "OpenGL" };
+		static const char* kApiIn [4] = {"-inES.txt", "-inES3.txt", "-inES31.txt", "-in.txt"};
+		static const char* kApiOut[4] = {"-outES.txt", "-outES3.txt", "-outES31.txt", "-out.txt"};
+		static const char* kApiOutMetal[4] = {"-outESMetal.txt", "-outES3Metal.txt", "-outES31Metal.txt", "-outMetal.txt"};
+		for (int api = 0; api < 4; ++api)
 		{
 			printf ("\n** running %s tests for %s...\n", kTypeName[type], kAPIName[api]);
 			StringVector inputFiles = GetFiles (testFolder, kApiIn[api]);
@@ -700,10 +707,12 @@ int main (int argc, const char** argv)
 	// 3.25s
 	// with builtin call linking, 3.84s
 
-	for (int i = 0; i < 2; ++i)
+	for (int i = 0; i < 4; ++i)
 		glslopt_cleanup (ctx[i]);
 	glslopt_cleanup (ctxMetal);
 	CleanupGL();
+
+	system("pause");
 
 	return errors ? 1 : 0;
 }

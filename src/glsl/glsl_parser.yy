@@ -81,8 +81,8 @@ static bool match_layout_qualifier(const char *s1, const char *s2,
 
 %expect 0
 
-%pure-parser
-%error-verbose
+%define api.pure
+%define parse.error verbose
 
 %locations
 %initial-action {
@@ -136,7 +136,7 @@ static bool match_layout_qualifier(const char *s1, const char *s2,
 %token ATTRIBUTE CONST_TOK BOOL_TOK FLOAT_TOK INT_TOK UINT_TOK
 %token BREAK CONTINUE DO ELSE FOR IF DISCARD RETURN SWITCH CASE DEFAULT
 %token BVEC2 BVEC3 BVEC4 IVEC2 IVEC3 IVEC4 UVEC2 UVEC3 UVEC4 VEC2 VEC3 VEC4
-%token CENTROID IN_TOK OUT_TOK INOUT_TOK UNIFORM VARYING SAMPLE
+%token CENTROID IN_TOK OUT_TOK INOUT_TOK BUFFER UNIFORM VARYING SAMPLE
 %token NOPERSPECTIVE FLAT SMOOTH
 %token MAT2X2 MAT2X3 MAT2X4
 %token MAT3X2 MAT3X3 MAT3X4
@@ -973,7 +973,7 @@ parameter_qualifier:
       if ($2.precision != ast_precision_none)
          _mesa_glsl_error(&@1, state, "duplicate precision qualifier");
 
-      if (!state->ARB_shading_language_420pack_enable && $2.flags.i != 0)
+      if (!state->has_420pack_or_es31() && $2.flags.i != 0)
          _mesa_glsl_error(&@1, state, "precision qualifiers must come last");
 
       $$ = $2;
@@ -1223,6 +1223,8 @@ layout_qualifier_id:
             $$.flags.q.std140 = 1;
          } else if (match_layout_qualifier($1, "shared", state) == 0) {
             $$.flags.q.shared = 1;
+         } else if (match_layout_qualifier($1, "std430", state) == 0) {
+            $$.flags.q.std430 = 1;
          } else if (match_layout_qualifier($1, "column_major", state) == 0) {
             $$.flags.q.column_major = 1;
          /* "row_major" is a reserved word in GLSL 1.30+. Its token is parsed
@@ -1388,7 +1390,7 @@ layout_qualifier_id:
          }
       }
 
-      if ((state->ARB_shading_language_420pack_enable ||
+      if ((state->has_420pack_or_es31() ||
            state->ARB_shader_atomic_counters_enable) &&
           match_layout_qualifier("binding", $1, state) == 0) {
          $$.flags.q.explicit_binding = 1;
@@ -1772,6 +1774,11 @@ storage_qualifier:
       memset(& $$, 0, sizeof($$));
 	  $$.precision = ast_precision_none;
       $$.flags.q.uniform = 1;
+   }
+   | BUFFER
+   {
+      memset(& $$, 0, sizeof($$));
+      $$.flags.q.buffer = 1;
    }
    | COHERENT
    {
@@ -2469,6 +2476,16 @@ basic_interface_block:
                                "#version 140 / GL_ARB_uniform_buffer_object "
                                "required for defining uniform blocks");
          }
+      } else if ($1.flags.q.buffer) {
+         if (state->es_shader && state->language_version < 310) {
+             _mesa_glsl_error(& @1, state,
+                              "#version 310 required for using "
+                              "interface blocks");
+         } else if (!state->es_shader && state->language_version < 150) {
+             _mesa_glsl_error(& @1, state,
+                              "#version 150 required for using "
+                              "interface blocks");
+         }
       } else {
          if (state->es_shader || state->language_version < 150) {
             _mesa_glsl_error(& @1, state,
@@ -2575,6 +2592,11 @@ interface_qualifier:
 	  $$.precision = ast_precision_none;
       $$.flags.q.uniform = 1;
    }
+   | BUFFER
+   {
+      memset(& $$, 0, sizeof($$));
+      $$.flags.q.buffer = 1;
+   }
    ;
 
 instance_name_opt:
@@ -2641,6 +2663,13 @@ layout_defaults:
          YYERROR;
       }
       $$ = NULL;
+   }
+   | layout_qualifier BUFFER ';'
+   {
+      $$ = NULL;
+      if (!state->default_shader_storage_qualifier->merge_qualifier(& @1, state, $1)) {
+         YYERROR;
+      }
    }
 
    | layout_qualifier IN_TOK ';'

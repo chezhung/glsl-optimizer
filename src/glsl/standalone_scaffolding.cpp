@@ -87,6 +87,7 @@ void initialize_context_to_defaults(struct gl_context *ctx, gl_api api)
    ctx->Extensions.ARB_draw_instanced = true;
    ctx->Extensions.ARB_ES2_compatibility = true;
    ctx->Extensions.ARB_ES3_compatibility = true;
+   ctx->Extensions.ARB_ES3_1_compatibility = true;
    ctx->Extensions.ARB_explicit_attrib_location = true;
    ctx->Extensions.ARB_fragment_coord_conventions = true;
    ctx->Extensions.ARB_fragment_layer_viewport = true;
@@ -108,11 +109,16 @@ void initialize_context_to_defaults(struct gl_context *ctx, gl_api api)
    ctx->Extensions.OES_EGL_image_external = true;
    ctx->Extensions.OES_standard_derivatives = true;
 
+   ctx->Extensions.EXT_blend_func_extended = true;
    ctx->Extensions.EXT_draw_instanced = true;
    ctx->Extensions.EXT_gpu_shader4 = true;
+   ctx->Extensions.EXT_gpu_shader5 = true;
    ctx->Extensions.EXT_shader_integer_mix = true;
+   ctx->Extensions.EXT_shader_io_blocks = true;
    ctx->Extensions.EXT_texture3D = true;
    ctx->Extensions.EXT_texture_array = true;
+   ctx->Extensions.EXT_texture_buffer = true;
+   ctx->Extensions.EXT_texture_cube_map_array = true;
    ctx->Extensions.EXT_draw_buffers = true;
 
    ctx->Extensions.NV_texture_rectangle = true;

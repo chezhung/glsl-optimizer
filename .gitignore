@@ -76,3 +76,6 @@ glsl_compiler
 
 build
 metalTemp.metal
+projects/vs2019/.vs/
+
+!win_flex_bison/*

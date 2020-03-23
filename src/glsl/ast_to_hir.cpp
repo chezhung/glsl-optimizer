@@ -67,9 +67,51 @@ remove_per_vertex_blocks(exec_list *instructions,
                          _mesa_glsl_parse_state *state, ir_variable_mode mode);
 
 
+
+#define PRINT_DEBUG_OUTPUT
+
+#ifdef PRINT_DEBUG_OUTPUT
+#include "ir_print_glsl_visitor.h"
+FILE *pMyDebugFile = nullptr;
+#endif
+
+static void open_debug_output_file()
+{
+	#ifdef PRINT_DEBUG_OUTPUT
+	fopen_s(&pMyDebugFile, "D:\\projects\\client\\GLSLOptimizer\\documents\\debug_ast_to_hir.txt", "w");
+	#endif
+}
+
+static void close_debug_output_file()
+{
+	#ifdef PRINT_DEBUG_OUTPUT
+	fclose(pMyDebugFile);
+    pMyDebugFile = nullptr;
+	#endif
+}
+
+static inline void debug_print_ir (const char* name, exec_list* ir, _mesa_glsl_parse_state* state, void* memctx)
+{
+	#ifdef PRINT_DEBUG_OUTPUT
+	char title[1024];
+	sprintf_s(title, 1024, "**** %s:\n", name);
+	int len = strlen(title);
+	fwrite(title, 1, len, pMyDebugFile);
+
+	char* foobar = _mesa_print_ir_glsl(ir, state, ralloc_strdup(memctx, ""), kPrintGlslFragment);
+	len = strlen(foobar);
+	fwrite(foobar, 1, len, pMyDebugFile);
+	#endif
+}
+
+#undef PRINT_DEBUG_OUTPUT
+
+
 void
 _mesa_ast_to_hir(exec_list *instructions, struct _mesa_glsl_parse_state *state)
 {
+    open_debug_output_file();
+
    _mesa_glsl_initialize_variables(instructions, state);
 
    state->symbols->separate_function_namespace = state->language_version == 110;
@@ -97,7 +139,9 @@ _mesa_ast_to_hir(exec_list *instructions, struct _mesa_glsl_parse_state *state)
    state->symbols->push_scope();
 
    foreach_list_typed (ast_node, ast, link, & state->translation_unit)
-      ast->hir(instructions, state);
+       ast->hir(instructions, state);
+
+   debug_print_ir("==== Test ====", instructions, state, instructions);
 
    detect_recursion_unlinked(state, instructions);
    detect_conflicting_assignments(state, instructions);
@@ -174,6 +218,8 @@ _mesa_ast_to_hir(exec_list *instructions, struct _mesa_glsl_parse_state *state)
     */
    remove_per_vertex_blocks(instructions, state, ir_var_shader_in);
    remove_per_vertex_blocks(instructions, state, ir_var_shader_out);
+
+   close_debug_output_file();
 }
 
 
@@ -5352,6 +5398,11 @@ ast_struct_specifier::hir(exec_list *instructions,
                           struct _mesa_glsl_parse_state *state)
 {
    YYLTYPE loc = this->get_location();
+
+   if (strcmp(this->name, "MaterialLayer") == 0)
+   {
+       int test = 0;
+   }
 
    /* Section 4.1.8 (Structures) of the GLSL 1.10 spec says:
     *

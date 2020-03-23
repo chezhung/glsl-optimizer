@@ -1764,6 +1764,11 @@ ir_print_glsl_visitor::visit(ir_precision_statement *ir)
 void
 ir_print_glsl_visitor::visit(ir_typedecl_statement *ir)
 {
+    if (strcmp(ir->type_decl->name, "MaterialLayer") == 0)
+    {
+        int test = 0;
+    }
+
 	const glsl_type *const s = ir->type_decl;
 	buffer.asprintf_append ("struct %s {\n", s->name);
 

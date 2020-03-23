@@ -94,22 +94,52 @@ ir_struct_usage_visitor::visit(ir_dereference_variable *ir)
 	return visit_continue;
 }
 
+static void push_referenced_struct_decl(ir_struct_usage_visitor *usage_visitor, 
+										const glsl_type *struct_type)
+{
+	if (struct_type->base_type == GLSL_TYPE_STRUCT ||
+		struct_type->base_type == GLSL_TYPE_INTERFACE)
+	{
+		// First push the struct declaration to the referenced structure list.
+		if (usage_visitor->has_struct_entry(struct_type) == false)
+		{
+			struct_entry *entry = new(usage_visitor->mem_ctx) struct_entry(struct_type);
+			usage_visitor->struct_list.push_tail(entry);
+		}
+
+		// If the field is of struct types, push the its type to the referenced structure list.
+		for (unsigned int i = 0u; i < struct_type->length; ++i)
+		{
+			const auto &field = struct_type->fields.structure[i];
+			const glsl_type* field_type = field.type;
+
+			if (field_type->base_type == GLSL_TYPE_ARRAY)
+				field_type = field_type->fields.array;
+
+			if (field_type->base_type == GLSL_TYPE_STRUCT ||
+				field_type->base_type == GLSL_TYPE_INTERFACE)
+			{
+				push_referenced_struct_decl(usage_visitor, field_type);
+			}
+		}
+	}
+}
+
 static void visit_variable (ir_instruction* ir, void* data)
 {
 	ir_variable* var = ir->as_variable();
 	if (!var)
-		return;
+        return;
+
 	ir_struct_usage_visitor* self = reinterpret_cast<ir_struct_usage_visitor*>(data);
 	const glsl_type* t = var->type;
 	if (t->base_type == GLSL_TYPE_ARRAY)
 		t = t->fields.array; // handle array of structs case
-	if (t->base_type == GLSL_TYPE_STRUCT)
+
+    if (t->base_type == GLSL_TYPE_STRUCT ||
+        t->base_type == GLSL_TYPE_INTERFACE)
 	{
-		if (!self->has_struct_entry (t))
-		{
-			struct_entry *entry = new(self->mem_ctx) struct_entry(t);
-			self->struct_list.push_tail (entry);
-		}
+		push_referenced_struct_decl(self, t);
 	}
 
 }

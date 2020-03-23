@@ -201,17 +201,56 @@ struct glslopt_shader
 	bool	status;
 };
 
+//#define PRINT_DEBUG_OUTPUT
+
+#ifdef PRINT_DEBUG_OUTPUT
+FILE *pDebugFile = nullptr;
+#endif
+
+static void open_debug_output_file()
+{
+	#ifdef PRINT_DEBUG_OUTPUT
+	fopen_s(&pDebugFile, "D:\\projects\\client\\GLSLOptimizer\\documents\\debug_output.txt", "w");
+	#endif
+}
+
+static void close_debug_output_file()
+{
+	#ifdef PRINT_DEBUG_OUTPUT
+	fclose(pDebugFile);
+	pDebugFile = nullptr;
+	#endif
+}
+
 static inline void debug_print_ir (const char* name, exec_list* ir, _mesa_glsl_parse_state* state, void* memctx)
 {
+	#ifdef PRINT_DEBUG_OUTPUT
 	#if 0
+	
 	printf("**** %s:\n", name);
 //	_mesa_print_ir (ir, state);
 	char* foobar = _mesa_print_ir_glsl(ir, state, ralloc_strdup(memctx, ""), kPrintGlslFragment);
 	printf("%s\n", foobar);
 	validate_ir_tree(ir);
+
+	#else
+	
+	char title[1024];
+	sprintf_s(title, 1024, "**** %s:\n", name);
+	int len = strlen(title);
+	fwrite(title, 1, len, pDebugFile);
+
+	char* foobar = _mesa_print_ir_glsl(ir, state, ralloc_strdup(memctx, ""), kPrintGlslFragment);
+	len = strlen(foobar);
+	fwrite(foobar, 1, len, pDebugFile);
+
+	validate_ir_tree(ir);
+	
+	#endif
 	#endif
 }
 
+#undef PRINT_DEBUG_OUTPUT
 
 struct precision_ctx
 {
@@ -611,6 +650,8 @@ static void find_shader_variables(glslopt_shader* sh, exec_list* ir)
 
 glslopt_shader* glslopt_optimize (glslopt_ctx* ctx, glslopt_shader_type type, const char* shaderSource, unsigned options)
 {
+	open_debug_output_file();
+
 	glslopt_shader* shader = new (ctx->mem_ctx) glslopt_shader ();
 
 	PrintGlslMode printMode = kPrintGlslVertex;
@@ -667,6 +708,8 @@ glslopt_shader* glslopt_optimize (glslopt_ctx* ctx, glslopt_shader_type type, co
 		else
 			shader->rawOutput = _mesa_print_ir_glsl(ir, state, ralloc_strdup(shader, ""), printMode);
 	}
+
+    debug_print_ir("==== Raw IR ====", ir, state, shader);
 	
 	// Link built-in functions
 	shader->shader->symbols = state->symbols;
@@ -721,6 +764,8 @@ glslopt_shader* glslopt_optimize (glslopt_ctx* ctx, glslopt_shader_type type, co
 
 	if (linked_shader)
 		ralloc_free(linked_shader);
+
+    close_debug_output_file();
 
 	return shader;
 }

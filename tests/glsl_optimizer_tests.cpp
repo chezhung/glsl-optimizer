@@ -241,7 +241,7 @@ static bool CheckGLSL (bool vertex, bool gles, const std::string& testName, cons
 #	endif // ifdef __APPLE__
 	
 	
-	std::string src;
+	std::string src(source.c_str());
 	/*
 	if (gles)
 	{
@@ -612,8 +612,8 @@ static bool TestFile (glslopt_ctx* ctx, bool vertex,
                 res = false;
 			}
 		}
-		if (res && doCheckGLSL && !CheckGLSL (vertex, gles, testName, "raw", textHir.c_str()))
-			res = false;
+		//if (res && doCheckGLSL && !CheckGLSL (vertex, gles, testName, "raw", textHir.c_str()))
+		//	res = false;
 		if (res && doCheckGLSL && !CheckGLSL (vertex, gles, testName, "optimized", textOpt.c_str()))
 			res = false;
 	}

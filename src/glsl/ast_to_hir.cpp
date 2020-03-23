@@ -5476,14 +5476,16 @@ ast_interface_block::hir(exec_list *instructions,
     * with this uniform block.
     */
    enum glsl_interface_packing packing;
-   if (this->layout.flags.q.shared) {
-      packing = GLSL_INTERFACE_PACKING_SHARED;
+   if (this->layout.flags.q.std140) {
+       packing = GLSL_INTERFACE_PACKING_STD140;
    } else if (this->layout.flags.q.packed) {
-      packing = GLSL_INTERFACE_PACKING_PACKED;
+       packing = GLSL_INTERFACE_PACKING_PACKED;
+   } else if (this->layout.flags.q.std430) {
+       packing = GLSL_INTERFACE_PACKING_STD430;
    } else {
-      /* The default layout is std140.
+      /* The default layout is shared.
        */
-      packing = GLSL_INTERFACE_PACKING_STD140;
+      packing = GLSL_INTERFACE_PACKING_SHARED;
    }
 
    ir_variable_mode var_mode;
@@ -5497,6 +5499,9 @@ ast_interface_block::hir(exec_list *instructions,
    } else if (this->layout.flags.q.uniform) {
       var_mode = ir_var_uniform;
       iface_type_name = "uniform";
+   } else if (this->layout.flags.q.buffer) {
+      var_mode = ir_var_shader_storage;
+      iface_type_name = "buffer";
    } else {
       var_mode = ir_var_auto;
       iface_type_name = "UNKNOWN";

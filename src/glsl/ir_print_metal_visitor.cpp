@@ -549,7 +549,7 @@ void ir_print_metal_visitor::visit(ir_variable *ir)
 {
 	const char *const cent = (ir->data.centroid) ? "centroid " : "";
 	const char *const inv = (ir->data.invariant) ? "invariant " : "";
-	const char *const mode[ir_var_mode_count] = { "", "  ", "  ", "  ", "  ", "in ", "out ", "inout ", "", "", "" };
+	const char *const mode[ir_var_mode_count] = { "", "  ", "  ", "  ", "  ", "  ", "in ", "out ", "inout ", "", "", "" };
 
 	const char *const interp[] = { "", "smooth ", "flat ", "noperspective " };
 

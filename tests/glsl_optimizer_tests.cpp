@@ -605,12 +605,6 @@ static bool TestFile (glslopt_ctx* ctx, bool vertex,
 				fwrite (textOpt.c_str(), 1, textOpt.size(), f);
 				fclose (f);
 			}
-
-			if (outputOpt.empty() != true)
-            {
-                printf("\n  %s: does not match optimized output\n", testName.c_str());
-                res = false;
-			}
 		}
 		//if (res && doCheckGLSL && !CheckGLSL (vertex, gles, testName, "raw", textHir.c_str()))
 		//	res = false;

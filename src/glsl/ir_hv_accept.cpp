@@ -398,11 +398,6 @@ ir_precision_statement::accept(ir_hierarchical_visitor *v)
 ir_visitor_status
 ir_typedecl_statement::accept(ir_hierarchical_visitor *v)
 {
-   if (strcmp(this->type_decl->name, "MaterialLayerGroup") == 0)
-   {
-       int test = 0;
-   }
-
    return v->visit(this);
 }
 

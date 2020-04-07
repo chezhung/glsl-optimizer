@@ -396,7 +396,7 @@ void ir_print_glsl_visitor::print_precision (ir_instruction* ir, const glsl_type
 	// skip precision for samplers that end up being lowp (default anyway) or undefined;
 	// except always emit it for shadowmap samplers (some drivers don't implement
 	// default EXT_shadow_samplers precision) and 3D textures (they always require precision)
-	if (type && type->is_sampler() && !type->sampler_shadow && !(type->sampler_dimensionality > GLSL_SAMPLER_DIM_2D))
+	if (type && type->is_sampler() && !type->sampler_shadow && !type->sampler_array && !(type->sampler_dimensionality > GLSL_SAMPLER_DIM_2D))
 	{
 		if (prec == glsl_precision_low || prec == glsl_precision_undefined)
 			return;
@@ -1311,8 +1311,9 @@ void ir_print_glsl_visitor::visit(ir_assignment *ir)
 		
    if (ir->condition)
    {
+	  buffer.asprintf_append("if (");
       ir->condition->accept(this);
-	  buffer.asprintf_append (" ");
+	  buffer.asprintf_append (") ");
    }
 	
 	emit_assignment_part (ir->lhs, ir->rhs, ir->write_mask, NULL);
@@ -1764,11 +1765,6 @@ ir_print_glsl_visitor::visit(ir_precision_statement *ir)
 void
 ir_print_glsl_visitor::visit(ir_typedecl_statement *ir)
 {
-    if (strcmp(ir->type_decl->name, "MaterialLayer") == 0)
-    {
-        int test = 0;
-    }
-
 	const glsl_type *const s = ir->type_decl;
 	buffer.asprintf_append ("struct %s {\n", s->name);
 

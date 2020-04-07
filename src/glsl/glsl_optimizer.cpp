@@ -13,6 +13,9 @@
 #include "standalone_scaffolding.h"
 
 
+//#define PRINT_DEBUG_OUTPUT
+
+
 extern "C" struct gl_shader *
 _mesa_new_shader(struct gl_context *ctx, GLuint name, GLenum type);
 
@@ -200,8 +203,6 @@ struct glslopt_shader
 	const char*	infoLog;
 	bool	status;
 };
-
-//#define PRINT_DEBUG_OUTPUT
 
 #ifdef PRINT_DEBUG_OUTPUT
 FILE *pDebugFile = nullptr;

@@ -5353,11 +5353,6 @@ ast_struct_specifier::hir(exec_list *instructions,
 {
    YYLTYPE loc = this->get_location();
 
-   if (strcmp(this->name, "MaterialLayer") == 0)
-   {
-       int test = 0;
-   }
-
    /* Section 4.1.8 (Structures) of the GLSL 1.10 spec says:
     *
     *     "Anonymous structures are not supported; so embedded structures must

@@ -117,6 +117,7 @@ public:
 	void newline_deindent();
 	void print_var_name (ir_variable* v);
 	void print_precision (ir_instruction* ir, const glsl_type* type);
+	void print_layout (ir_instruction* ir, const glsl_type* type);
 
 	virtual void visit(ir_variable *);
 	virtual void visit(ir_function_signature *);
@@ -235,6 +236,8 @@ _mesa_print_ir_glsl(exec_list *instructions,
 			str.asprintf_append ("#extension GL_ARB_draw_instanced : enable\n");
 		if (state->EXT_gpu_shader4_enable)
 			str.asprintf_append ("#extension GL_EXT_gpu_shader4 : enable\n");
+		if (state->EXT_gpu_shader5_enable)
+			str.asprintf_append ("#extension GL_EXT_gpu_shader5 : enable\n");
 		if (state->EXT_shader_texture_lod_enable)
 			str.asprintf_append ("#extension GL_EXT_shader_texture_lod : enable\n");
 		if (state->OES_standard_derivatives_enable)
@@ -256,6 +259,14 @@ _mesa_print_ir_glsl(exec_list *instructions,
 			str.asprintf_append("#extension GL_ARB_shader_bit_encoding : enable\n");
 		if (state->EXT_texture_array_enable)
 			str.asprintf_append ("#extension GL_EXT_texture_array : enable\n");
+        if (state->EXT_separate_shader_objects_enable)
+            str.asprintf_append ("#extension GL_EXT_separate_shader_objects : enable\n");
+        if (state->EXT_shader_io_blocks_enable)
+            str.asprintf_append ("#extension GL_EXT_shader_io_blocks : enable\n");
+        if (state->OES_texture_cube_map_array_enable)
+            str.asprintf_append ("#extension GL_OES_texture_cube_map_array : enable\n");
+        if (state->EXT_blend_func_extended_enable)
+            str.asprintf_append ("#extension GL_EXT_blend_func_extended : enable\n");
 	}
 	
 	// remove unused struct declarations
@@ -358,10 +369,78 @@ void ir_print_glsl_visitor::print_var_name (ir_variable* v)
 	}
 }
 
+void ir_print_glsl_visitor::print_layout (ir_instruction* ir, const glsl_type* type)
+{
+    ir_variable *var = static_cast<ir_variable*>(ir);
+	const ir_variable::ir_variable_data &varData = var->data;
+
+	if (this->state->language_version < 300)
+		return;
+
+	if ((!varData.explicit_index && !varData.explicit_binding && !varData.explicit_index) &&
+		(!type->is_interface() || type->interface_packing == GLSL_INTERFACE_PACKING_SHARED))
+	{
+		return;
+	}
+
+	bool firstAttr = true;
+
+	buffer.asprintf_append("layout(");
+
+	if (type->is_interface())
+    {
+        if (type->interface_packing == GLSL_INTERFACE_PACKING_STD140)
+        {
+            buffer.asprintf_append("std140");
+            firstAttr = false;
+        }
+        else if (type->interface_packing == GLSL_INTERFACE_PACKING_STD430)
+        {
+            buffer.asprintf_append("std430");
+            firstAttr = false;
+        }
+        else if (type->interface_packing == GLSL_INTERFACE_PACKING_PACKED)
+        {
+            buffer.asprintf_append("packed");
+            firstAttr = false;
+        }
+	}
+
+	if (type->is_matrix() &&
+		varData.matrix_layout == GLSL_MATRIX_LAYOUT_ROW_MAJOR)
+	{
+		buffer.asprintf_append("%srow_major", firstAttr ? "" : ", ");
+		firstAttr = false;
+	}
+
+	if (varData.explicit_binding)
+    {
+        buffer.asprintf_append("%sbinding=%d", firstAttr ? "" : ", ", varData.binding);
+        firstAttr = false;
+	}
+
+    if (varData.explicit_index)
+    {
+        buffer.asprintf_append("%sindex=%d", firstAttr ? "" : ", ", varData.index);
+        firstAttr = false;
+    }
+
+    if (varData.explicit_location)
+    {
+        const int binding_base = (this->state->stage == MESA_SHADER_VERTEX ? (int)VERT_ATTRIB_GENERIC0 : (int)FRAG_RESULT_DATA0);
+        const int location = varData.location - binding_base;
+        buffer.asprintf_append("%slocation=%d", firstAttr ? "" : ", ", location);
+        firstAttr = false;
+    }
+
+	buffer.asprintf_append(") ");
+}
+
 void ir_print_glsl_visitor::print_precision (ir_instruction* ir, const glsl_type* type)
 {
 	if (!this->use_precision)
 		return;
+
 	if (type &&
 		!type->is_float() &&
 		!type->is_sampler() &&
@@ -447,13 +526,6 @@ void ir_print_glsl_visitor::visit(ir_variable *ir)
 	
 	const char *const interp[] = { "", "smooth ", "flat ", "noperspective " };
 	
-	if (this->state->language_version >= 300 && ir->data.explicit_location)
-	{
-		const int binding_base = (this->state->stage == MESA_SHADER_VERTEX ? (int)VERT_ATTRIB_GENERIC0 : (int)FRAG_RESULT_DATA0);
-		const int location = ir->data.location - binding_base;
-		buffer.asprintf_append ("layout(location=%d) ", location);
-	}
-	
 	int decormode = this->mode;
 	// GLSL 1.30 and up use "in" and "out" for everything
 	if (this->state->language_version >= 130)
@@ -492,6 +564,7 @@ void ir_print_glsl_visitor::visit(ir_variable *ir)
 		return;
 	}
 	
+	print_layout (ir, ir->type);
 	buffer.asprintf_append ("%s%s%s%s",
 							cent, inv, interp[ir->data.interpolation], mode[decormode][ir->data.mode]);
 	print_precision (ir, ir->type);

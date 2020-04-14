@@ -99,7 +99,7 @@ static void push_referenced_struct_decl(ir_struct_usage_visitor *usage_visitor,
 {
 	if (struct_type->base_type == GLSL_TYPE_STRUCT ||
 		struct_type->base_type == GLSL_TYPE_INTERFACE)
-	{
+    {
 		// First push the struct declaration to the referenced structure list.
 		if (usage_visitor->has_struct_entry(struct_type) == false)
 		{

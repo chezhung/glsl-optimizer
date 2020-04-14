@@ -179,9 +179,9 @@ static void print_texlod_workarounds(int usage_bitfield, int usage_proj_bitfield
 				str.asprintf_append("%s vec4 impl_%stexture%sLodEXT(%s sampler%s sampler, highp vec%d coord, mediump float lod)\n", precString, precName, tex_sampler_dim_name[dim], precString, tex_sampler_dim_name[dim], tex_sampler_dim_size[dim]);
 				str.asprintf_append("{\n");
 				str.asprintf_append("#if defined(GL_EXT_shader_texture_lod)\n");
-				str.asprintf_append("\treturn texture%sLodEXT(sampler, coord, lod);\n", tex_sampler_dim_name[dim]);
+				str.asprintf_append("  return texture%sLodEXT(sampler, coord, lod);\n", tex_sampler_dim_name[dim]);
 				str.asprintf_append("#else\n");
-				str.asprintf_append("\treturn texture%s(sampler, coord, lod);\n", tex_sampler_dim_name[dim]);
+				str.asprintf_append("  return texture%s(sampler, coord, lod);\n", tex_sampler_dim_name[dim]);
 				str.asprintf_append("#endif\n");
 				str.asprintf_append("}\n\n");
 			}
@@ -193,18 +193,18 @@ static void print_texlod_workarounds(int usage_bitfield, int usage_proj_bitfield
 					str.asprintf_append("%s vec4 impl_%stexture2DProjLodEXT(%s sampler2D sampler, highp vec4 coord, mediump float lod)\n", precString, precName, precString);
 					str.asprintf_append("{\n");
 					str.asprintf_append("#if defined(GL_EXT_shader_texture_lod)\n");
-					str.asprintf_append("\treturn texture%sProjLodEXT(sampler, coord, lod);\n", tex_sampler_dim_name[dim]);
+					str.asprintf_append("  return texture%sProjLodEXT(sampler, coord, lod);\n", tex_sampler_dim_name[dim]);
 					str.asprintf_append("#else\n");
-					str.asprintf_append("\treturn texture%sProj(sampler, coord, lod);\n", tex_sampler_dim_name[dim]);
+					str.asprintf_append("  return texture%sProj(sampler, coord, lod);\n", tex_sampler_dim_name[dim]);
 					str.asprintf_append("#endif\n");
 					str.asprintf_append("}\n\n");
 				}
 				str.asprintf_append("%s vec4 impl_%stexture%sProjLodEXT(%s sampler%s sampler, highp vec%d coord, mediump float lod)\n", precString, precName, tex_sampler_dim_name[dim], precString, tex_sampler_dim_name[dim], tex_sampler_dim_size[dim] + 1);
 				str.asprintf_append("{\n");
 				str.asprintf_append("#if defined(GL_EXT_shader_texture_lod)\n");
-				str.asprintf_append("\treturn texture%sProjLodEXT(sampler, coord, lod);\n", tex_sampler_dim_name[dim]);
+				str.asprintf_append("  return texture%sProjLodEXT(sampler, coord, lod);\n", tex_sampler_dim_name[dim]);
 				str.asprintf_append("#else\n");
-				str.asprintf_append("\treturn texture%sProj(sampler, coord, lod);\n", tex_sampler_dim_name[dim]);
+				str.asprintf_append("  return texture%sProj(sampler, coord, lod);\n", tex_sampler_dim_name[dim]);
 				str.asprintf_append("#endif\n");
 				str.asprintf_append("}\n\n");
 			}
@@ -572,13 +572,13 @@ void ir_print_glsl_visitor::visit(ir_variable *ir)
 
     if (ir->type->base_type == GLSL_TYPE_INTERFACE)
     {
-        buffer.asprintf_append("\n{\n");
+        buffer.asprintf_append(" {");
 
         for (auto pid = 0u; pid < ir->type->length; ++pid)
         {
             const auto &structField = ir->type->fields.structure[pid];
 
-            buffer.asprintf_append("\t");
+            buffer.asprintf_append("\n  ");
             print_precision(ir, structField.type);
             print_type(buffer, structField.type, false);
             buffer.asprintf_append(" ");
@@ -589,27 +589,29 @@ void ir_print_glsl_visitor::visit(ir_variable *ir)
                 buffer.asprintf_append("[%u]", structField.type->length);
             }
 
-            buffer.asprintf_append(";\n");
+            buffer.asprintf_append(";");
         }
 
         buffer.asprintf_append("\n}");
     }
 
-	buffer.asprintf_append (" ");
-	print_var_name (ir);
-	print_type_post(buffer, ir->type, false);
-	
-	if (ir->constant_value &&
-		ir->data.mode != ir_var_shader_in &&
-		ir->data.mode != ir_var_shader_out &&
-		ir->data.mode != ir_var_shader_inout &&
-		ir->data.mode != ir_var_function_in &&
-		ir->data.mode != ir_var_function_out &&
-		ir->data.mode != ir_var_function_inout)
-	{
-		buffer.asprintf_append (" = ");
-		visit (ir->constant_value);
-	}
+    if (!ir->data.fake_instance) {
+        buffer.asprintf_append(" ");
+        print_var_name(ir);
+        print_type_post(buffer, ir->type, false);
+
+        if (ir->constant_value &&
+            ir->data.mode != ir_var_shader_in &&
+            ir->data.mode != ir_var_shader_out &&
+            ir->data.mode != ir_var_shader_inout &&
+            ir->data.mode != ir_var_function_in &&
+            ir->data.mode != ir_var_function_out &&
+            ir->data.mode != ir_var_function_inout)
+        {
+            buffer.asprintf_append(" = ");
+            visit(ir->constant_value);
+        }
+    }
 }
 
 

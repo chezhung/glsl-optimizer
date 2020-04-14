@@ -615,7 +615,10 @@ static void find_shader_variables(glslopt_shader* sh, exec_list* ir)
 		if (var->data.mode == ir_var_shader_in)
 		{
 			if (sh->inputCount >= glslopt_shader::kMaxShaderInputs)
-				continue;
+                continue;
+
+            if (var->data.fake_instance)
+                continue;
 
 			glslopt_shader_var& v = sh->inputs[sh->inputCount];
 			v.name = ralloc_strdup(sh, var->name);
@@ -627,6 +630,9 @@ static void find_shader_variables(glslopt_shader* sh, exec_list* ir)
 		{
 			if (sh->uniformCount >= glslopt_shader::kMaxShaderUniforms)
 				continue;
+
+			if (var->data.fake_instance)
+				continue;
 			
 			glslopt_shader_var& v = sh->uniforms[sh->uniformCount];
 			v.name = ralloc_strdup(sh, var->name);
@@ -637,7 +643,10 @@ static void find_shader_variables(glslopt_shader* sh, exec_list* ir)
 		if (var->data.mode == ir_var_uniform && var->type->is_sampler())
 		{
 			if (sh->textureCount >= glslopt_shader::kMaxShaderTextures)
-				continue;
+                continue;
+
+            if (var->data.fake_instance)
+                continue;
 			
 			glslopt_shader_var& v = sh->textures[sh->textureCount];
 			v.name = ralloc_strdup(sh, var->name);

@@ -614,6 +614,8 @@ public:
 
    struct ir_variable_data {
 
+      unsigned fake_instance:1;
+
       /**
        * Is the variable read-only?
        *

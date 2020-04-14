@@ -1614,6 +1614,7 @@ ir_variable::ir_variable(const struct glsl_type *type, const char *name,
 
    this->u.max_ifc_array_access = NULL;
 
+   this->data.fake_instance = false;
    this->data.explicit_location = false;
    this->data.has_initializer = false;
    this->data.location = -1;

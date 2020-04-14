@@ -5765,6 +5765,40 @@ ast_interface_block::hir(exec_list *instructions,
          state->symbols->add_variable(var);
          instructions->push_tail(var);
       }
+   } else if (this->layout.flags.q.explicit_binding && 
+              num_variables > 0) {
+      int  index = 0;
+      char szInstanceName[256];
+      do
+      {
+          sprintf_s(szInstanceName, "fake_instance_name_%d", index++);
+      } while (state->symbols->get_variable(szInstanceName));
+
+      ir_variable *var;
+      var = new(state) ir_variable(block_type,
+                                   szInstanceName,
+                                   var_mode, glsl_precision_undefined);
+
+      /* This interface block has no instance defined, but we fake it as one to prevent
+       * it from being flattened. This is ugly...
+       */
+      var->data.fake_instance = true;
+
+      var->data.matrix_layout = matrix_layout == GLSL_MATRIX_LAYOUT_INHERITED
+         ? GLSL_MATRIX_LAYOUT_COLUMN_MAJOR : matrix_layout;
+
+      if (state->stage == MESA_SHADER_GEOMETRY && var_mode == ir_var_shader_in)
+         handle_geometry_shader_input_decl(state, loc, var);
+
+      /* Propagate the "binding" keyword into this UBO's fields;
+       * the UBO declaration itself doesn't get an ir_variable unless it
+       * has an instance name.  This is ugly.
+       */
+      var->data.explicit_binding = this->layout.flags.q.explicit_binding;
+      var->data.binding = this->layout.binding;
+
+      state->symbols->add_variable(var);
+      instructions->push_tail(var);
    } else {
       /* In order to have an array size, the block must also be declared with
        * an instance name.

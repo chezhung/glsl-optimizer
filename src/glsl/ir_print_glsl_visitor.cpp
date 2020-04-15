@@ -377,7 +377,7 @@ void ir_print_glsl_visitor::print_layout (ir_instruction* ir, const glsl_type* t
 	if (this->state->language_version < 300)
 		return;
 
-	if ((!varData.explicit_index && !varData.explicit_binding && !varData.explicit_index) &&
+	if ((!varData.explicit_location && !varData.explicit_binding && !varData.explicit_index) &&
 		(!type->is_interface() || type->interface_packing == GLSL_INTERFACE_PACKING_SHARED))
 	{
 		return;

@@ -5910,6 +5910,34 @@ ast_interface_block::hir(exec_list *instructions,
 
 
 ir_rvalue *
+ast_fs_input_layout::hir(exec_list *instructions,
+                         struct _mesa_glsl_parse_state *state)
+{
+   YYLTYPE loc = this->get_location();
+
+   /* If any fragment input layout declaration preceded this one, make sure it
+    * was consistent with this one.
+    */
+   if (state->fs_input_early_fragment_tests_specified &&
+       state->early_fragment_tests != this->early_fragment_tests) {
+      _mesa_glsl_error(&loc, state,
+                       "fragment shader input layout does not match"
+                       " previous declaration");
+      return NULL;
+   }
+
+   state->fs_input_early_fragment_tests_specified = true;
+
+   void *ctx = state;
+   ir_default_fs_input_layout *ir = new(ctx) ir_default_fs_input_layout(this->early_fragment_tests);
+
+   instructions->push_tail(ir);
+
+   return NULL;
+}
+
+
+ir_rvalue *
 ast_gs_input_layout::hir(exec_list *instructions,
                          struct _mesa_glsl_parse_state *state)
 {

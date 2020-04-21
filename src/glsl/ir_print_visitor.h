@@ -73,6 +73,7 @@ public:
    virtual void visit(ir_typedecl_statement *);
    virtual void visit(ir_emit_vertex *);
    virtual void visit(ir_end_primitive *);
+   virtual void visit(ir_default_fs_input_layout *);
    /*@}*/
 
 private:

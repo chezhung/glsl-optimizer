@@ -553,6 +553,7 @@ struct _mesa_glsl_parse_state {
     */
    unsigned gs_input_size;
 
+   bool fs_input_early_fragment_tests_specified;
    bool early_fragment_tests;
 
    /** Atomic counter offsets by binding */

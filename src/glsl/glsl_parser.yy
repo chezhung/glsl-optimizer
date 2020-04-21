@@ -196,7 +196,7 @@ static bool match_layout_qualifier(const char *s1, const char *s2,
 
 %token ERROR_TOK
 
-%token COMMON PARTITION ACTIVE FILTER ROW_MAJOR
+%token COMMON PARTITION ACTIVE FILTER ROW_MAJOR EARLY_FRAGMENT_TESTS
 
 %type <identifier> variable_identifier
 %type <node> statement
@@ -1247,6 +1247,8 @@ layout_qualifier_id:
           */
          } else if (match_layout_qualifier($1, "packed", state) == 0) {
            $$.flags.q.packed = 1;
+         } else if (match_layout_qualifier($1, "early_fragment_tests", state) == 0) {
+           $$.flags.q.early_fragment_tests = 1;
          }
 
          if ($$.flags.i && state->ARB_uniform_buffer_object_warn) {

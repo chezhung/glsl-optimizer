@@ -279,7 +279,8 @@ extern int _mesa_glsl_debug;
     ACTIVE = 485,
     FILTER = 486,
     ROW_MAJOR = 487,
-    THEN = 488
+    EARLY_FRAGMENT_TESTS = 488,
+    THEN = 489
   };
 #endif
 
@@ -324,7 +325,7 @@ union YYSTYPE
       ast_node *else_statement;
    } selection_rest_statement;
 
-#line 328 "src/glsl/glsl_parser.h"
+#line 329 "src/glsl/glsl_parser.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

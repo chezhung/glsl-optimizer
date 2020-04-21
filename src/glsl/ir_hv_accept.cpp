@@ -428,3 +428,10 @@ ir_end_primitive::accept(ir_hierarchical_visitor *v)
 
    return (s == visit_stop) ? s : v->visit_leave(this);
 }
+
+
+ir_visitor_status
+ir_default_fs_input_layout::accept(ir_hierarchical_visitor *v)
+{
+    return v->visit(this);
+}

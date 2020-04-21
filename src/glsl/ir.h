@@ -81,6 +81,7 @@ enum ir_node_type {
    ir_type_discard,
    ir_type_emit_vertex,
    ir_type_end_primitive,
+   ir_type_default_fs_input_layout,
    ir_type_max, /**< maximum ir_type enum number, for validation */
    ir_type_unset = ir_type_max
 };
@@ -2410,6 +2411,32 @@ public:
    }
 
    ir_rvalue *stream;
+};
+
+/**
+ * IR instruction for default fragment shader input layout.
+ */
+class ir_default_fs_input_layout : public ir_instruction {
+public:
+    ir_default_fs_input_layout(bool _early_fragment_tests)
+        : ir_instruction(ir_type_default_fs_input_layout),
+        early_fragment_tests(_early_fragment_tests)
+    {
+    }
+
+    virtual void accept(ir_visitor *v)
+    {
+        v->visit(this);
+    }
+
+    virtual ir_default_fs_input_layout *clone(void *mem_ctx, struct hash_table *ht) const
+    {
+        return new(mem_ctx) ir_default_fs_input_layout(this->early_fragment_tests);
+    }
+
+    virtual ir_visitor_status accept(ir_hierarchical_visitor *);
+
+    bool early_fragment_tests;
 };
 
 /*@}*/

@@ -1094,6 +1094,8 @@ move_non_declarations(exec_list *instructions, exec_node *last,
          continue;
       if (inst->ir_type == ir_type_typedecl)
          continue;
+      if (inst->ir_type == ir_type_default_fs_input_layout)
+          continue;
 
       ir_variable *var = inst->as_variable();
       if ((var != NULL) && (var->data.mode != ir_var_temporary))
@@ -1691,7 +1693,7 @@ link_intrastage_shaders(void *mem_ctx,
       link_get_main_function_signature(linked);
 
    /* Move any instructions other than variable declarations, function
-    * declarations or precision statements into main.
+    * declarations, fragment shader default input layout or precision statements into main.
     */
    exec_node *insertion_point =
       move_non_declarations(linked->ir, (exec_node *) &main_sig->body, false,

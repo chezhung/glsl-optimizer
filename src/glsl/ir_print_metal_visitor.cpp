@@ -180,7 +180,8 @@ public:
 	virtual void visit(ir_precision_statement *);
 	virtual void visit(ir_typedecl_statement *);
 	virtual void visit(ir_emit_vertex *);
-	virtual void visit(ir_end_primitive *);
+    virtual void visit(ir_end_primitive *);
+    virtual void visit(ir_default_fs_input_layout *);
 
 	void emit_assignment_part (ir_dereference* lhs, ir_rvalue* rhs, unsigned write_mask, ir_rvalue* dstIndex);
 	bool can_emit_canonical_for (loop_variable_state *ls);
@@ -2014,4 +2015,11 @@ void
 ir_print_metal_visitor::visit(ir_end_primitive *ir)
 {
 	buffer.asprintf_append ("end-primitive-TODO");
+}
+
+void
+ir_print_metal_visitor::visit(ir_default_fs_input_layout *ir)
+{
+    if (ir->early_fragment_tests)
+        buffer.asprintf_append("layout(early_fragment_tests) in");
 }

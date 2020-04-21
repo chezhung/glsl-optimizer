@@ -67,6 +67,7 @@ public:
    virtual void visit(class ir_typedecl_statement *) = 0;
    virtual void visit(class ir_emit_vertex *) = 0;
    virtual void visit(class ir_end_primitive *) = 0;
+   virtual void visit(class ir_default_fs_input_layout *) = 0;
    /*@}*/
 };
 
@@ -87,6 +88,7 @@ public:
    virtual void visit(class ir_call *) {}
    virtual void visit(class ir_emit_vertex *) {}
    virtual void visit(class ir_end_primitive *) {}
+   virtual void visit(class ir_default_fs_input_layout *) {}
 };
 #endif /* __cplusplus */
 

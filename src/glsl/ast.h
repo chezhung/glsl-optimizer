@@ -1061,6 +1061,27 @@ public:
 
 
 /**
+ * AST node representing a declaration of the input layout for fragment
+ * shaders.
+ */
+class ast_fs_input_layout : public ast_node
+{
+public:
+    ast_fs_input_layout(const struct YYLTYPE &locp, bool _early_fragment_tests)
+        : early_fragment_tests(_early_fragment_tests)
+    {
+        set_location(locp);
+    }
+
+    virtual ir_rvalue *hir(exec_list *instructions,
+                           struct _mesa_glsl_parse_state *state);
+
+private:
+    const bool early_fragment_tests;
+};
+
+
+/**
  * AST node representing a declaration of the input layout for geometry
  * shaders.
  */

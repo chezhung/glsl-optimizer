@@ -264,6 +264,7 @@ ast_type_qualifier::merge_in_qualifier(YYLTYPE *loc,
    void *mem_ctx = state;
    bool create_gs_ast = false;
    bool create_cs_ast = false;
+   bool create_default_fs_input_layout = false;
    ast_type_qualifier valid_in_mask;
    valid_in_mask.flags.i = 0;
 
@@ -295,9 +296,11 @@ ast_type_qualifier::merge_in_qualifier(YYLTYPE *loc,
    case MESA_SHADER_FRAGMENT:
       if (q.flags.q.early_fragment_tests) {
          state->early_fragment_tests = true;
+         create_default_fs_input_layout = true;
       } else {
          _mesa_glsl_error(loc, state, "invalid input layout qualifier");
       }
+      valid_in_mask.flags.q.early_fragment_tests = 1;
       break;
    case MESA_SHADER_COMPUTE:
       create_cs_ast |=
@@ -357,6 +360,8 @@ ast_type_qualifier::merge_in_qualifier(YYLTYPE *loc,
             local_size[i] = 1;
       }
       node = new(mem_ctx) ast_cs_input_layout(*loc, local_size);
+   } else if (create_default_fs_input_layout) {
+      node = new(mem_ctx) ast_fs_input_layout(*loc, q.flags.q.early_fragment_tests);
    }
 
    return true;
